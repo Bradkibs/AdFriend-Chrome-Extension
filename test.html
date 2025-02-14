@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test AdFriend Extension</title>
+    <style>
+        .ad-container, .sponsored {
+            width: 300px;
+            height: 250px;
+            background-color: #ccc;
+            text-align: center;
+            line-height: 250px;
+            font-size: 20px;
+            color: black;
+            border: 2px solid #888;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>AdFriend Test Page</h1>
+<div class="ad-container">Ad 1</div>
+<div class="sponsored">Sponsored Content</div>
+
+<script>
+    // Simulating ads appearing dynamically after 3 seconds
+    setTimeout(() => {
+        let newAd = document.createElement('div');
+        newAd.className = 'ad-container';
+        newAd.innerText = 'New Ad';
+        document.body.appendChild(newAd);
+    }, 3000);
+</script>
+</body>
+</html>
