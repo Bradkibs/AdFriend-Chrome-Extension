@@ -156,24 +156,38 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 async function handlePrediction({ isAd, elementData, tabId }) {
     if (!isAd) return;
 
-    // Check against easyList rules
-    const matchesEasyList = easyListRules.some(rule =>
-        elementData.classList.some(className =>
-            className.includes(rule.replace(/[^a-zA-Z0-9-_]/g, ''))
-        )
-    );
+    try {
+        // Check against easyList rules
+        const matchesEasyList = easyListRules.some(rule =>
+            elementData.classList.some(className =>
+                className.includes(rule.replace(/[^a-zA-Z0-9-_]/g, ''))
+            )
+        );
 
-    if (isAd || matchesEasyList) {
-        // Replace ad with widget content
-        const replacement = contentWidget.getRandomContent();
-        chrome.tabs.sendMessage(tabId, {
-            type: 'replaceAd',
-            data: {
-                elementData,
-                replacement
-            }
-        });
+        if (isAd || matchesEasyList) {
+            // Get replacement content
+            const replacement = contentWidget.getRandomContent();
+
+            // Send message to content script with specific target element info
+            chrome.tabs.sendMessage(tabId, {
+                type: 'replaceAd',
+                data: {
+                    selector: buildSelector(elementData),
+                    rect: elementData.rect,
+                    replacement
+                }
+            });
+        }
+    } catch (error) {
+        console.error("Error in handlePrediction:", error);
     }
+}
+
+function buildSelector(elementData) {
+    const classSelectors = elementData.classList
+        .map(className => `.${CSS.escape(className)}`)
+        .join('');
+    return `${elementData.tagName}${classSelectors}`;
 }
 
 // Initialize components
@@ -181,7 +195,8 @@ async function initialize() {
     try {
         await fetchEasyList();
         contentWidget = new ContentWidget();
-        await contentWidget.initialize("fetchQuote");
+        const dataFetched = await contentWidget.initialize("fetchQuote");
+        console.log("This is the data fetched from Zenquotes page",dataFetched );
         await initializeSandbox();
     } catch (error) {
         console.error("Initialization error:", error);
@@ -191,9 +206,9 @@ async function initialize() {
 // Content refresh alarm
 chrome.alarms.create({ periodInMinutes: 1/600 });
 chrome.alarms.onAlarm.addListener(() => {
-    if (contentWidget) {
-        contentWidget.fetchDailyQuote();
-    }
+    // if (contentWidget) {
+    //     contentWidget.fetchDailyQuote();
+    // }
 });
 
 initialize();

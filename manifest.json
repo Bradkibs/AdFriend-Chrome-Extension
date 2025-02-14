@@ -11,7 +11,7 @@
   ],
   "host_permissions": [
     "https://easylist.to/*",
-    "https://api.quotable.io/*"
+    "https://zenquotes.io/*"
   ],
   "background": {
     "service_worker": "src/background.js"
